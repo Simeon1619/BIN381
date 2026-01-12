@@ -1,0 +1,140 @@
+#Load package
+#library(readr)
+#library(dplyr)
+
+#Access to Health Care
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/access-to-health-care_national_zaf_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/access-to-health-care_national_zaf_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("DataId", "Value", "Precision", "IndicatorOrder",
+               "SurveyYear", "DenominatorWeighted", "IsPreferred", "ByVariableId")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#Child Mortality Rates 
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/child-mortality-rates_national_zaf_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/child-mortality-rates_national_zaf_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("Value", "IndicatorOrder", "CharacteristicOrder", "CharacteristicId")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#Maternal Mortality 
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/maternal-mortality_national_zaff_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/maternal-mortality_national_zaff_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("Value", "IndicatorOrder", "CharacteristicId", "CharacteristicOrder","IndicatorOrder")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#IYCF
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/iycf_national_zaf_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/iycf_national_zaf_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("DataId", "SurveyYear", "DenominatorWeighted", "CharacteristicCategory",
+               "CharacteristicLabel")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#Literacy
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/literacy_national_zaf_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/literacy_national_zaf_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("Value", "Precision", "DataId")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#Water
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/water_national_zaff_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/water_national_zaff_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("Value", "Precision", "IndicatorOrder", "DataId")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#Toilet Facilitues
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/toilet-facilities_national_zaf_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/toilet-facilities_national_zaf_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("Value", "Precision", "IndicatorOrder", "DataId","DenominatorUnweighted")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#Immunisation
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/immunization_national_zaf_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/immunization_national_zaf_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("Value", "Precision", "IndicatorOrder", "DataId","SurveyYear","DenominatorUnweighted")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
+
+#Immunisation
+
+# input and output file paths
+input_file  <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/CleanData/immunization_national_zaf_clean.csv"
+output_file <- "C:/Users/faase/Downloads/Project2/Project2/DataCleaning_Prep/Agrregated_Data/immunization_national_zaf_clean_prep.csv"
+
+# Columns that I want to keep
+keep_cols <- c("Value", "Precision", "IndicatorOrder", "DataId","SurveyYear","DenominatorUnweighted")
+
+# Read, select, and write
+df <- read_csv(input_file, show_col_types = FALSE) %>%
+  select(any_of(keep_cols))   # keep only the specified columns
+
+write_csv(df, output_file)
