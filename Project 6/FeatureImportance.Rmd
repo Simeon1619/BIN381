@@ -1,0 +1,140 @@
+# ==========================================
+# Skilled Birth Attendance: Feature Importance Export
+# Models: Multiple Linear Regression (LM) & Random Forest (RF)
+# Cross-Validation: 10-fold
+# Output: feature_importance.csv (for Power BI)
+# ==========================================
+
+# ---- Libraries ----
+library(readxl)
+library(dplyr)
+library(caret)
+library(randomForest)
+library(stringr)
+
+# ---- 1) Load data ----
+df <- read_excel("C:/Users/faase/OneDrive/Desktop/BIN/Milestone_3/Master_Datasets/master_transformed_access_to_health_care_national_zaf.xlsx")
+
+# Target
+df <- df %>%
+  mutate(
+    skilled_birth_attendance = `indicatorAssistance during delivery from a skilled provider`
+  )
+
+# ---- 2) Expanded predictors ----
+predictors <- c(
+  "surveyyear",
+  "indicatorAntenatal care from a skilled provider",
+  "indicatorPlace of delivery: Health facility",
+  "indicatorDelivery by cesarean section",
+  "indicatorProvider of mothers' first postnatal checkup: Doctor/nurse/midwife",
+  "indicatorTreatment of diarrhea: Oral rehydration solution (ORS)",
+  "indicatorChildren with ARI for whom advice or treatment was sought",
+  "indicatorChild took antibiotic drugs for fever"
+)
+
+df_model <- df %>%
+  select(all_of(predictors), skilled_birth_attendance) %>%
+  na.omit()
+
+# ---- 3) Cross-validation setup ----
+set.seed(123)
+ctrl <- trainControl(method = "cv", number = 10)
+
+# ---- 4) Train Multiple Linear Regression (LM) ----
+mlr_model <- train(
+  skilled_birth_attendance ~ .,
+  data = df_model,
+  method = "lm",
+  trControl = ctrl,
+  metric = "RMSE"
+)
+
+# ---- 5) Train Random Forest (RF) ----
+rf_model <- train(
+  skilled_birth_attendance ~ .,
+  data = df_model,
+  method = "rf",
+  trControl = ctrl,
+  tuneGrid = expand.grid(.mtry = c(2, 3, 4)),
+  ntree = 500,
+  metric = "RMSE"
+)
+
+# ---- 6) Feature importance extraction ----
+# 6a) Linear model coefficients
+mlr_coef <- summary(mlr_model$finalModel)$coefficients
+mlr_importance_df <- data.frame(
+  Feature = rownames(mlr_coef),
+  Value = mlr_coef[, "Estimate"],
+  stringsAsFactors = FALSE
+) %>%
+  filter(Feature != "(Intercept)") %>%
+  mutate(
+    Feature = make.names(Feature),
+    AbsValue = abs(Value),
+    Model = "Linear Regression (Coefficient)"
+  ) %>%
+  select(Model, Feature, Value, AbsValue)
+
+# 6b) caret::varImp for LM
+mlr_varimp <- varImp(mlr_model, scale = TRUE)$importance
+mlr_varimp_df <- mlr_varimp %>%
+  tibble::rownames_to_column("Feature") %>%
+  rename(Value = Overall) %>%
+  mutate(
+    AbsValue = abs(Value),
+    Model = "Linear Regression (varImp)"
+  ) %>%
+  select(Model, Feature, Value, AbsValue)
+
+# 6c) RF importance
+rf_varimp <- varImp(rf_model, scale = TRUE)$importance
+rf_importance_df <- rf_varimp %>%
+  tibble::rownames_to_column("Feature") %>%
+  rename(Value = Overall) %>%
+  mutate(
+    AbsValue = abs(Value),
+    Model = "Random Forest"
+  ) %>%
+  select(Model, Feature, Value, AbsValue)
+
+# ---- 7) Combine and tidy ----
+feature_importance <- bind_rows(
+  mlr_importance_df,
+  mlr_varimp_df,
+  rf_importance_df
+) %>%
+  mutate(
+    Feature = str_replace_all(Feature, "\\.", " "),
+    Feature = str_trim(Feature)
+  )
+
+# ---- 8) Export CSV for Power BI ----
+out_path <- "C:/Users/faase/OneDrive/Desktop/BIN/Milestone_3/feature_importance.csv"
+write.csv(feature_importance, out_path, row.names = FALSE)
+
+# ---- 9) Console message ----
+cat("\nFeature importance exported to:\n", out_path, "\n")
+
+# ---- 10) Save trained model ----
+# Save the Random Forest model (or swap with mlr_model if preferred)
+saveRDS(rf_model, "C:/Users/faase/OneDrive/Desktop/BIN/Milestone_3/best_rf_model.rds")
+cat("Random Forest model saved to: C:/Users/faase/OneDrive/Desktop/BIN/Milestone_3/best_rf_model.rds\n")
+
+# ---- 11) Wrapper function for prediction ----
+predict_sba <- function(new_data, model_path = "C:/Users/faase/OneDrive/Desktop/BIN/Milestone_3/best_rf_model.rds") {
+  # Load model
+  model <- readRDS(model_path)
+  
+  # Run predictions
+  preds <- predict(model, newdata = new_data)
+  
+  # Return predictions
+  return(preds)
+}
+
+# Example usage (uncomment to test):
+# new_data <- df_model[1:5, -ncol(df_model)]  # take first 5 rows of predictors
+# predictions <- predict_sba(new_data)
+# print(predictions)

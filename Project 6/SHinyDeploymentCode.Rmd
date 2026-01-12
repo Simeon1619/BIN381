@@ -1,0 +1,85 @@
+# ==========================================
+# Shiny App: Skilled Birth Attendance Predictor
+# ==========================================
+library(shiny)
+library(DT)
+
+# Load your saved model
+model <- readRDS("C:/Users/faase/OneDrive/Desktop/BIN/Milestone_3/best_rf_model.rds")
+
+# Define UI
+ui <- fluidPage(
+  titlePanel("Skilled Birth Attendance Predictor"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      tabsetPanel(
+        tabPanel("Upload CSV",
+                 fileInput("file", "Upload CSV file with predictors",
+                           accept = c(".csv")),
+                 helpText("Upload a CSV with the same predictor columns used in training.")
+        ),
+        tabPanel("Manual Entry",
+                 numericInput("surveyyear", "Survey Year", value = 2020, min = 1990, max = 2030),
+                 numericInput("anc_skilled", "Antenatal care from a skilled provider (%)", value = 80, min = 0, max = 100),
+                 numericInput("facility_delivery", "Place of delivery: Health facility (%)", value = 70, min = 0, max = 100),
+                 numericInput("cesarean", "Delivery by cesarean section (%)", value = 10, min = 0, max = 100),
+                 numericInput("postnatal_mother", "Mothers' first postnatal checkup: Doctor/nurse/midwife (%)", value = 60, min = 0, max = 100),
+                 numericInput("ors", "Treatment of diarrhea: ORS (%)", value = 50, min = 0, max = 100),
+                 numericInput("ari", "Children with ARI for whom advice/treatment was sought (%)", value = 40, min = 0, max = 100),
+                 numericInput("antibiotics", "Child took antibiotic drugs for fever (%)", value = 30, min = 0, max = 100),
+                 actionButton("predict_manual", "Predict")
+        )
+      )
+    ),
+    
+    mainPanel(
+      h4("Predictions"),
+      DTOutput("pred_table")
+    )
+  )
+)
+
+# Define server logic
+server <- function(input, output) {
+  
+  # Reactive: read uploaded file
+  dataInput <- reactive({
+    req(input$file)
+    read.csv(input$file$datapath)
+  })
+  
+  # Reactive: manual entry as a one-row data frame
+  manualInput <- eventReactive(input$predict_manual, {
+    data.frame(
+      surveyyear = input$surveyyear,
+      "indicatorAntenatal care from a skilled provider" = input$anc_skilled,
+      "indicatorPlace of delivery: Health facility" = input$facility_delivery,
+      "indicatorDelivery by cesarean section" = input$cesarean,
+      "indicatorProvider of mothers' first postnatal checkup: Doctor/nurse/midwife" = input$postnatal_mother,
+      "indicatorTreatment of diarrhea: Oral rehydration solution (ORS)" = input$ors,
+      "indicatorChildren with ARI for whom advice or treatment was sought" = input$ari,
+      "indicatorChild took antibiotic drugs for fever" = input$antibiotics,
+      check.names = FALSE   # <-- keep column names exactly as written
+    )
+  })
+  
+  # Generate predictions and display
+  output$pred_table <- renderDT({
+    if (!is.null(input$file)) {
+      df <- dataInput()
+      preds <- predict(model, newdata = df) * 100000
+      results <- cbind(df, Predicted_Skilled_Birth_Attendance = preds)
+    } else if (input$predict_manual > 0) {
+      df <- manualInput()
+      preds <- predict(model, newdata = df) * 100000
+      results <- cbind(df, Predicted_Skilled_Birth_Attendance = preds)
+    } else {
+      results <- data.frame(Message = "Upload a CSV or enter values manually to see predictions.")
+    }
+    datatable(results, options = list(pageLength = 10))
+  })
+}
+
+# Run the app
+shinyApp(ui = ui, server = server)
